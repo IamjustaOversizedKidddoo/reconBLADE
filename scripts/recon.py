@@ -16,6 +16,7 @@ Usage:
 """
 
 import argparse
+import errno
 import json
 import sys
 import shutil
@@ -62,19 +63,29 @@ def ports(target):
         return {"action": "ports", "error": f"cannot resolve {target}"}
 
     open_ = []
+    refused = {errno.ECONNREFUSED, 10061}   # 10061 = WSAECONNREFUSED on Windows
 
     def scan(p):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(1)
-        if s.connect_ex((ip, p)) == 0:
-            banner = ""
-            try:
-                s.settimeout(1.5)
-                banner = s.recv(1024).decode(errors="ignore").strip()
-            except Exception:
-                pass
-            open_.append({"port": p, "service": "unknown", "version": banner})
-        s.close()
+        # A refused connection is a definite "closed"; a timeout may just be a slow or
+        # lossy network, so retry those instead of silently missing an open port.
+        for _ in range(3):
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(2.5)
+                try:
+                    rc = s.connect_ex((ip, p))
+                except OSError:
+                    rc = -1
+                if rc == 0:
+                    banner = ""
+                    try:
+                        s.settimeout(1.5)
+                        banner = s.recv(1024).decode(errors="ignore").strip()
+                    except Exception:
+                        pass
+                    open_.append({"port": p, "service": "unknown", "version": banner})
+                    return
+                if rc in refused:
+                    return
 
     with ThreadPoolExecutor(max_workers=100) as pool:
         pool.map(scan, common)
