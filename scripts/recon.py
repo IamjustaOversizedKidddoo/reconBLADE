@@ -147,16 +147,67 @@ def cve(product):
             "note": "searchsploit not installed — check NVD / Exploit-DB for this version"}
 
 
+def run_all(target):
+    """Zero-config full recon + a readable report. No AI needed — just works."""
+    WEB_PORTS = {80, 443, 8080, 8443}
+    print(f"\n╔═ ReconBLADE ═ {target} ═══════════════════════")
+
+    p = ports(target)
+    if p.get("error"):
+        print(f"║ [!] {p['error']}\n╚═══════════════════════════════════")
+        return
+    opens = p.get("open_ports", [])
+    print(f"║ IP: {p.get('ip', '?')}   ·   tool: {p.get('tool')}   ·   open ports: {len(opens)}")
+    print("║")
+    for s in opens:
+        print(f"║  {s['port']:>5}/tcp  {s.get('service',''):<8} {s.get('version','')}".rstrip())
+
+    # web check if a web port is open
+    if any(s["port"] in WEB_PORTS for s in opens):
+        w = web(target)
+        if not w.get("error"):
+            print("║")
+            print(f"║  WEB  {w['url']} [{w['status']}]  Server: {w.get('server','-')}")
+            miss = [k for k, v in w.get("security_headers", {}).items() if v == "MISSING"]
+            if miss:
+                print(f"║   [!] missing security headers: {', '.join(miss)}")
+
+    # cve lookup per versioned service
+    printed = False
+    for s in opens:
+        ver = s.get("version", "")
+        if ver and s.get("service") not in ("", "unknown"):
+            query = " ".join(ver.split()[:2])        # e.g. "OpenSSH 6.6.1p1"
+            c = cve(query)
+            hits = c.get("results", [])
+            if hits:
+                if not printed:
+                    print("║\n║  KNOWN EXPLOITS (searchsploit):")
+                    printed = True
+                print(f"║   {query}:")
+                for h in hits[:3]:
+                    print(f"║     - {h['title']}")
+    print("╚═══════════════════════════════════════════════")
+    print("Tip: for AI-driven triage + attack paths, run this as a Claude Code plugin (see README).")
+
+
 def main():
     ap = argparse.ArgumentParser(
-        description="ReconBLADE — AI recon orchestrator (JSON capabilities)")
+        description="ReconBLADE — AI recon orchestrator. "
+                    "Run `all <target>` for a full report, or a single capability.")
     sub = ap.add_subparsers(dest="action", required=True)
+    ap_all = sub.add_parser("all", help="full recon + readable report (start here)")
+    ap_all.add_argument("target", help="AUTHORIZED target only")
     for a in ("ports", "web", "subs"):
         sp = sub.add_parser(a)
         sp.add_argument("target", help="AUTHORIZED target only")
     cp = sub.add_parser("cve")
     cp.add_argument("product", help='e.g. "OpenSSH 6.6.1"')
     args = ap.parse_args()
+
+    if args.action == "all":
+        run_all(args.target)
+        return
 
     fn = {"ports": ports, "web": web, "subs": subs, "cve": cve}[args.action]
     arg = args.product if args.action == "cve" else args.target

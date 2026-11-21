@@ -38,6 +38,27 @@ normally does by hand.
 
 ---
 
+## `> QUICKSTART`
+
+**Option 1 — just run it (no setup, no AI):**
+```bash
+git clone https://github.com/IamjustaOversizedKidddoo/reconBLADE.git
+cd reconBLADE
+python3 scripts/recon.py all scanme.nmap.org
+```
+That's it — one command gives a full report (ports, web headers, known exploits).
+Uses `nmap`/`searchsploit` if installed, falls back to pure Python otherwise.
+
+**Option 2 — AI-driven mode (Claude Code):**
+```
+/plugin marketplace add IamjustaOversizedKidddoo/reconBLADE
+/plugin install reconblade
+/recon scanme.nmap.org
+```
+Now Claude drives the recon adaptively and writes a prioritized, reasoned report.
+
+---
+
 ## `// WHY THIS IS DIFFERENT`
 
 Tools like **nmap · subfinder · nuclei** are powerful — but they are *dumb muscle*: they

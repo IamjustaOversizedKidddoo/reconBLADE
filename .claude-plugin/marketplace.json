@@ -1,0 +1,11 @@
+{
+  "name": "reconblade",
+  "owner": { "name": "Ayan Abbas" },
+  "plugins": [
+    {
+      "name": "reconblade",
+      "source": "./",
+      "description": "AI recon orchestrator — adaptive /recon command that drives scanners and reasons over findings."
+    }
+  ]
+}
