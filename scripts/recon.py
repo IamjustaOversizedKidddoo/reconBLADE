@@ -17,6 +17,7 @@ Usage:
 
 import argparse
 import json
+import sys
 import shutil
 import subprocess
 import socket
@@ -192,6 +193,11 @@ def run_all(target):
 
 
 def main():
+    # Windows consoles/pipes default to cp1252, which can't print the report's box characters.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
     ap = argparse.ArgumentParser(
         description="ReconBLADE — AI recon orchestrator. "
                     "Run `all <target>` for a full report, or a single capability.")

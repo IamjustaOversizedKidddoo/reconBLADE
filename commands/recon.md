@@ -16,6 +16,9 @@ a lab such as `scanme.nmap.org`, or an in-scope engagement). If unclear, STOP an
 Run each with:
 `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/recon.py <action> <arg>`
 
+On Windows, `python3` is often missing or just a Microsoft Store stub: if it fails, use
+`python` or `py -3` instead (same arguments). Check once, then reuse whichever works.
+
 - `ports <target>` — open ports + service/version
 - `web <target>` — web server + missing security headers
 - `subs <domain>` — subdomains (wildcard-filtered)

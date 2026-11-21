@@ -49,6 +49,8 @@ python3 scripts/recon.py all scanme.nmap.org
 That's it — one command gives a full report (ports, web headers, known exploits).
 Uses `nmap`/`searchsploit` if installed, falls back to pure Python otherwise.
 
+> 🪟 **Windows:** use `python` (or `py -3`) instead of `python3` in every command here.
+
 **Option 2 — AI-driven mode (Claude Code):**
 ```
 /plugin marketplace add IamjustaOversizedKidddoo/reconBLADE
