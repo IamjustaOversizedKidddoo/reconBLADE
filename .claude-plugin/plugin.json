@@ -1,0 +1,6 @@
+{
+  "name": "reconblade",
+  "version": "0.2.0",
+  "description": "An AI recon orchestrator for Claude Code. Not a scanner: it exposes recon as JSON capabilities and lets the agent chain them adaptively and correlate findings into prioritized risks. Authorized targets only.",
+  "author": { "name": "Ayan Abbas" }
+}
