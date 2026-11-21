@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# ReconBLADE output
+recon_report.md
+*.log
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
